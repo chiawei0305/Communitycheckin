@@ -474,7 +474,6 @@
 
         const statusEl = document.getElementById('todayStatus');
         statusEl.innerHTML = '<span class="pill pill-info">更新中…</span>';
-        document.getElementById('message').textContent = '';
         document.getElementById('error').textContent = '';
 
         apiGetStatus(currentProfile.userId)
@@ -492,13 +491,10 @@
             if (remaining === 0) {
               statusEl.innerHTML = '<span class="pill pill-success">今日已達 3 次</span>';
               btn.disabled = true;
-              document.getElementById('message').textContent = '今日已達 3 次上限，明天再來吧！';
             } else {
               statusEl.innerHTML =
                 '<span class="pill pill-info">今日已打卡 ' + count + '/3 次，還可打卡 ' + remaining + ' 次</span>';
               btn.disabled = false;
-              document.getElementById('message').textContent =
-                count === 0 ? '按下下面的按鈕，為今天累積 1 點。' : '還可再打卡 ' + remaining + ' 次。';
             }
           })
           .catch(function (err) {
@@ -582,6 +578,10 @@
             setLoadingState(false);
             if (res && res.message && !res.status) {
               document.getElementById('message').textContent = res.message;
+            }
+            // 打卡成功後再向後端查詢最新狀態，確保今日次數與點數與伺服器同步
+            if (res && res.success !== false && currentProfile) {
+              loadStatus();
             }
           })
           .catch(function (err) {
