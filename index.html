@@ -283,80 +283,48 @@
       // LIFF ID：請與 LINE Developers 上設定的一致
       const LIFF_ID = '2009376786-xXCkRqig';
 
+      // GAS 後端 API 網址（部署後 Web App 的 /exec URL）。若 GAS 重新部署換網址，請同步更新此處。
+      const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxMT4lM3IbcHKUjiYBjE48j7y6ZD9tbnh81LDNcQXhiqGLJOwoZrZZrbkSzk1593rDC/exec';
+
       // 非 LINE App 環境（一般瀏覽器）時啟用 mock，方便本地測試
       const IS_BROWSER_MOCK =
         typeof window !== 'undefined' &&
         !/Line/i.test(navigator.userAgent) &&
         location.hostname !== '';
 
-      // GAS Web App URL：
-      // 1) 優先使用後端注入的 /exec URL（避免在 userCodeAppPanel 預覽環境抓到錯誤網址）
-      // 2) 否則退回用目前頁面 origin+pathname
-      const GAS_URL_FROM_SERVER = '<?= WEB_APP_URL ?>';
-      // 瀏覽器 mock 測試用：可在此填入固定 /exec（避免預覽網域導致回傳 HTML）
-      const GAS_URL_FALLBACK_EXEC = 'https://script.google.com/macros/s/AKfycbxMT4lM3IbcHKUjiYBjE48j7y6ZD9tbnh81LDNcQXhiqGLJOwoZrZZrbkSzk1593rDC/exec';
-      const GAS_URL =
-        GAS_URL_FROM_SERVER && !/^<\?=/.test(GAS_URL_FROM_SERVER)
-          ? GAS_URL_FROM_SERVER
-          : (IS_BROWSER_MOCK ? GAS_URL_FALLBACK_EXEC : location.origin + location.pathname);
-
-      /**
-       * 呼叫 Apps Script 後端函式（同源 RPC）。
-       * 使用 google.script.run 避免 userCodeAppPanel / 跨網域 fetch 造成 Failed to fetch。
-       */
-      function callServerFn(fnName /*, ...args */) {
-        const args = Array.prototype.slice.call(arguments, 1);
-        return new Promise(function (resolve, reject) {
-          if (
-            typeof google === 'undefined' ||
-            !google.script ||
-            !google.script.run ||
-            typeof google.script.run[fnName] !== 'function'
-          ) {
-            reject(
-              new Error(
-                '此頁面不是由 Apps Script Web App 載入，無法呼叫後端函式。' +
-                  '請用 /exec 網址或從 LINE 內開啟 LIFF。'
-              )
-            );
-            return;
-          }
-
-          const runner = google.script.run
-            .withSuccessHandler(function (res) {
-              resolve(res);
-            })
-            .withFailureHandler(function (err) {
-              const msg =
-                (err && (err.message || err.details || err.toString && err.toString())) ||
-                'Unknown error';
-              reject(new Error(msg));
-            });
-
-          runner[fnName].apply(runner, args);
-        });
-      }
-
       function apiGetStatus(userId) {
-        return callServerFn('getStatus', userId);
+        return fetch(GAS_API_URL + '?action=getStatus&userId=' + encodeURIComponent(userId))
+          .then(function (r) { return r.json(); })
+          .then(function (res) {
+            if (res && res.error) throw new Error(res.error);
+            return res;
+          });
       }
 
       function apiCheckInWithImage(userId, displayName, imageBase64, productName, quantity, groupId) {
-        return callServerFn(
-          'checkInWithImage',
-          userId,
-          displayName,
-          imageBase64,
-          productName,
-          quantity,
-          groupId
-        );
+        return fetch(GAS_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({
+            action: 'checkInWithImage',
+            userId: userId,
+            displayName: displayName || '',
+            imageBase64: imageBase64 || '',
+            productName: productName || '',
+            quantity: quantity || '',
+            groupId: groupId || ''
+          })
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (res) {
+            if (res && res.error) throw new Error(res.error);
+            return res;
+          });
       }
 
       let currentProfile = null;
       let isCheckingIn = false;
       let currentImageBase64 = null;
-      /** 今日剩餘可打卡次數，用於 setLoadingState 與按鈕開關 */
       let todayRemaining = 0;
 
       function toggleRules() {
@@ -368,10 +336,6 @@
         toggle.textContent = isOpen ? '📋 打卡規則（點擊展開）' : '📋 打卡規則（點擊收合）';
       }
 
-      /**
-       * 壓縮圖片至 base64，最大邊長 1024px，品質 0.7
-       * 避免 google.script.run 50KB 參數限制
-       */
       function compressImageToBase64(file, callback) {
         const MAX_SIZE = 1024;
         const QUALITY = 0.7;
@@ -418,11 +382,9 @@
         }
       }
 
-      // LIFF 初始化超時秒數（手機網路較慢時可拉長）
       const LIFF_INIT_TIMEOUT_MS = 15000;
 
       function initLiff() {
-        // 瀏覽器 mock 模式：跳過 LIFF，直接用假帳號測試
         if (IS_BROWSER_MOCK) {
           currentProfile = { userId: 'mock-user-browser', displayName: '測試帳號（瀏覽器）' };
           document.getElementById('displayName').textContent = currentProfile.displayName;
@@ -431,7 +393,6 @@
           return;
         }
 
-        // LIFF init 超時保護；超時時顯示目前頁面網址與「重新開啟」按鈕
         const liffInitTimeout = setTimeout(function () {
           if (!currentProfile) {
             const currentUrl = location.href;
@@ -542,8 +503,7 @@
           })
           .catch(function (err) {
             document.getElementById('error').textContent =
-              '讀取狀態失敗：' + err.message +
-              ' 請確認使用 /exec 網址開啟，或在 LINE 內開啟 LIFF。';
+              '讀取狀態失敗：' + err.message + ' 請確認網路或稍後再試。';
             document.getElementById('todayStatus').innerHTML =
               '<span class="pill pill-info">讀取失敗</span>';
           });
@@ -652,10 +612,8 @@
           });
         });
 
-        window._liffTimeout = setTimeout(function () {}, 6000);
         initLiff();
       });
     </script>
   </body>
 </html>
-
