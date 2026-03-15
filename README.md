@@ -1,4 +1,4 @@
-## 聚寶盆社群打卡自動化模組
+## 社群打卡自動化模組
 
 這個資料夾提供一套「LINE OA＋LIFF＋Google Sheet＋Apps Script」的打卡自動化範本，你可以直接複製到 Google Apps Script 與試算表中使用。
 
