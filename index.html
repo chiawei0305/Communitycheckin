@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>YUI集點送購物金！</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+        margin: 0;
+        padding: 16px;
+        background: linear-gradient(165deg, #e8f0e8 0%, #f5f0e6 35%, #fce8ec 70%, #e8ede8 100%);
+        min-height: 100vh;
+        color: #5c5346;
+      }
+
+      .card {
+        max-width: 420px;
+        margin: 0 auto;
+        background: linear-gradient(180deg, #faf6f0 0%, #f7f3e8 100%);
+        border-radius: 20px;
+        box-shadow: 0 12px 40px rgba(183, 110, 121, 0.08), 0 0 0 2px rgba(201, 168, 108, 0.35);
+        padding: 24px 20px;
+        border: 1px solid rgba(201, 168, 108, 0.4);
+      }
+
+      .title {
+        font-size: 24px;
+        font-weight: 800;
+        margin-bottom: 4px;
+        background: linear-gradient(135deg, #b76e79 0%, #c9a86c 40%, #d4af37 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .subtitle {
+        font-size: 15px;
+        color: #5c5346;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+
+      .subtitle .greeting {
+        font-size: 13px;
+        color: #6b5b4f;
+        font-weight: 400;
+      }
+
+      .status {
+        margin-bottom: 18px;
+        font-size: 14px;
+      }
+
+      .field {
+        margin-bottom: 12px;
+        font-size: 13px;
+      }
+
+      .field label {
+        display: block;
+        margin-bottom: 4px;
+        color: #5c5346;
+      }
+
+      .field input[type='file'],
+      .field input[type='text'],
+      .field input[type='number'] {
+        width: 100%;
+        font-size: 13px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(201, 168, 108, 0.5);
+        box-sizing: border-box;
+        background: #f0f9f8;
+        color: #5c5346;
+      }
+
+      .field input[type='file'] {
+        color: #c9a86c;
+      }
+
+      .field input[type='file']::file-selector-button {
+        color: #c9a86c;
+        border: 1px solid rgba(201, 168, 108, 0.6);
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-weight: 600;
+      }
+
+      .pill {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .pill-success {
+        background: linear-gradient(135deg, #5ba3a3, #6ab7b7);
+        color: #fff;
+      }
+
+      .pill-info {
+        background: linear-gradient(135deg, #b76e79 0%, #c9a86c 100%);
+        color: #fff;
+      }
+
+      .stat-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        margin-bottom: 6px;
+      }
+
+      .stat-label {
+        color: #5c5346;
+      }
+
+      .stat-value {
+        font-weight: 700;
+        color: #5ba3a3;
+      }
+
+      .button {
+        width: 100%;
+        margin-top: 18px;
+        padding: 14px 16px;
+        border-radius: 999px;
+        border: none;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        color: #fff;
+        background: linear-gradient(135deg, #b76e79 0%, #c9a86c 35%, #d4af37 100%);
+        box-shadow: 0 6px 20px rgba(183, 110, 121, 0.35), 0 2px 8px rgba(212, 175, 55, 0.2);
+        transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+      }
+
+      .button:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 12px rgba(183, 110, 121, 0.3);
+      }
+
+      .button[disabled] {
+        opacity: 0.6;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      .message {
+        margin-top: 12px;
+        font-size: 13px;
+        color: #5c5346;
+      }
+
+      .error {
+        color: #b76e79;
+      }
+
+      .footer {
+        margin-top: 16px;
+        font-size: 11px;
+        color: #5c5346;
+        text-align: center;
+      }
+
+      .rules-toggle {
+        width: 100%;
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #5c5346;
+        background: rgba(201, 168, 108, 0.2);
+        border: 1px solid rgba(201, 168, 108, 0.5);
+        border-radius: 12px;
+        cursor: pointer;
+        text-align: left;
+      }
+
+      .rules-content {
+        margin-top: 8px;
+        padding: 12px 14px;
+        font-size: 12px;
+        color: #5c5346;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 12px;
+        border: 1px solid rgba(201, 168, 108, 0.3);
+      }
+
+      .rules-section {
+        margin-bottom: 10px;
+      }
+
+      .rules-section:last-child {
+        margin-bottom: 0;
+      }
+
+      .rules-section ul {
+        margin: 6px 0 0;
+        padding-left: 18px;
+      }
+
+      .rules-section li {
+        margin-bottom: 4px;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="title">YUI集點送購物金！</div>
+      <div class="subtitle">天天打卡賺 7-11 購物金！</div>
+      <div class="subtitle greeting">嗨，<span id="displayName">載入中...</span> 👋 今天用了哪些 YUI 好物？拍照上傳拿點數吧！</div>
+
+      <div class="status">
+        <div id="todayStatus">
+          <span class="pill pill-info">狀態載入中…</span>
+        </div>
+        <div id="pointInfo" style="margin-top: 8px; display: none;">
+          <div class="stat-row">
+            <div class="stat-label">累積點數</div>
+            <div class="stat-value" id="totalPoints">-</div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-label">今日日期</div>
+            <div class="stat-value" id="todayDate">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rules-block" style="margin: 12px 0;">
+        <button type="button" class="rules-toggle" id="rulesToggle" onclick="toggleRules()" aria-expanded="false">
+          📋 打卡規則（點擊展開）
+        </button>
+        <div id="rulesContent" class="rules-content" style="display: none;">
+          <div class="rules-section">
+            <strong>基本打卡規則</strong>
+            <ul>
+              <li><strong>適用商品：</strong>纖歲茶、百卡餐、極視能、速疾通、益生菌、夜酵素... 等</li>
+              <li><strong>給點機制：</strong>上傳 1 張自用商品照片 = 累積 1 點</li>
+              <li><strong>次數限制：</strong>每天最多只能打卡 3 次（即一天最多累積 3 點）</li>
+              <li><strong>活動期間：</strong>從「開卡」當日開始計算</li>
+            </ul>
+          </div>
+          <div class="rules-section">
+            <strong>注意事項與審核機制</strong>
+            <ul>
+              <li><strong>AI 嚴格把關：</strong>系統會透過 AI 審核上傳的打卡照片</li>
+              <li><strong>無效判定：</strong>如果上傳的不是 YUI 團購相關商品，該次打卡將不予計算點數</li>
+              <li><strong>打卡截圖需顯示「YUIの漂亮聚寶盆」</strong></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="imageInput">上傳自用商品照 (1張 = 1點)</label>
+        <input id="imageInput" type="file" accept="image/*" />
+      </div>
+      <div class="field">
+        <label for="productNameInput">商品名稱 (可留白，由 AI 自動辨識)</label>
+        <input id="productNameInput" type="text" placeholder="例如：珍珠奶茶" />
+      </div>
+      <div class="field">
+        <label for="quantityInput">數量</label>
+        <input id="quantityInput" type="number" min="1" step="1" placeholder="例如：1" />
+      </div>
+
+      <button id="checkinButton" class="button" onclick="onCheckInWithImageClick()" disabled>
+        確認上傳並集點
+      </button>
+
+      <div id="message" class="message"></div>
+      <div id="error" class="message error"></div>
+
+      <div class="footer">💡 每日最多打卡 3 次。系統 AI 嚴格審核，非 YUI 團購商品不計點喔！</div>
+    </div>
+
+    <script>
+      // LIFF ID：請與 LINE Developers 上設定的一致
+      const LIFF_ID = '2009376786-xXCkRqig';
+
+      // 非 LINE App 環境（一般瀏覽器）時啟用 mock，方便本地測試
+      const IS_BROWSER_MOCK =
+        typeof window !== 'undefined' &&
+        !/Line/i.test(navigator.userAgent) &&
+        location.hostname !== '';
+
+      // GAS Web App URL：
+      // 1) 優先使用後端注入的 /exec URL（避免在 userCodeAppPanel 預覽環境抓到錯誤網址）
+      // 2) 否則退回用目前頁面 origin+pathname
+      const GAS_URL_FROM_SERVER = '<?= WEB_APP_URL ?>';
+      // 瀏覽器 mock 測試用：可在此填入固定 /exec（避免預覽網域導致回傳 HTML）
+      const GAS_URL_FALLBACK_EXEC = 'https://script.google.com/macros/s/AKfycbxMT4lM3IbcHKUjiYBjE48j7y6ZD9tbnh81LDNcQXhiqGLJOwoZrZZrbkSzk1593rDC/exec';
+      const GAS_URL =
+        GAS_URL_FROM_SERVER && !/^<\?=/.test(GAS_URL_FROM_SERVER)
+          ? GAS_URL_FROM_SERVER
+          : (IS_BROWSER_MOCK ? GAS_URL_FALLBACK_EXEC : location.origin + location.pathname);
+
+      /**
+       * 呼叫 Apps Script 後端函式（同源 RPC）。
+       * 使用 google.script.run 避免 userCodeAppPanel / 跨網域 fetch 造成 Failed to fetch。
+       */
+      function callServerFn(fnName /*, ...args */) {
+        const args = Array.prototype.slice.call(arguments, 1);
+        return new Promise(function (resolve, reject) {
+          if (
+            typeof google === 'undefined' ||
+            !google.script ||
+            !google.script.run ||
+            typeof google.script.run[fnName] !== 'function'
+          ) {
+            reject(
+              new Error(
+                '此頁面不是由 Apps Script Web App 載入，無法呼叫後端函式。' +
+                  '請用 /exec 網址或從 LINE 內開啟 LIFF。'
+              )
+            );
+            return;
+          }
+
+          const runner = google.script.run
+            .withSuccessHandler(function (res) {
+              resolve(res);
+            })
+            .withFailureHandler(function (err) {
+              const msg =
+                (err && (err.message || err.details || err.toString && err.toString())) ||
+                'Unknown error';
+              reject(new Error(msg));
+            });
+
+          runner[fnName].apply(runner, args);
+        });
+      }
+
+      function apiGetStatus(userId) {
+        return callServerFn('getStatus', userId);
+      }
+
+      function apiCheckInWithImage(userId, displayName, imageBase64, productName, quantity, groupId) {
+        return callServerFn(
+          'checkInWithImage',
+          userId,
+          displayName,
+          imageBase64,
+          productName,
+          quantity,
+          groupId
+        );
+      }
+
+      let currentProfile = null;
+      let isCheckingIn = false;
+      let currentImageBase64 = null;
+      /** 今日剩餘可打卡次數，用於 setLoadingState 與按鈕開關 */
+      let todayRemaining = 0;
+
+      function toggleRules() {
+        const content = document.getElementById('rulesContent');
+        const toggle = document.getElementById('rulesToggle');
+        const isOpen = content.style.display !== 'none';
+        content.style.display = isOpen ? 'none' : 'block';
+        toggle.setAttribute('aria-expanded', !isOpen);
+        toggle.textContent = isOpen ? '📋 打卡規則（點擊展開）' : '📋 打卡規則（點擊收合）';
+      }
+
+      /**
+       * 壓縮圖片至 base64，最大邊長 1024px，品質 0.7
+       * 避免 google.script.run 50KB 參數限制
+       */
+      function compressImageToBase64(file, callback) {
+        const MAX_SIZE = 1024;
+        const QUALITY = 0.7;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function () {
+            let w = img.width;
+            let h = img.height;
+            if (w > MAX_SIZE || h > MAX_SIZE) {
+              if (w > h) {
+                h = Math.round((h * MAX_SIZE) / w);
+                w = MAX_SIZE;
+              } else {
+                w = Math.round((w * MAX_SIZE) / h);
+                h = MAX_SIZE;
+              }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            callback(canvas.toDataURL('image/jpeg', QUALITY));
+          };
+          img.onerror = function () {
+            callback(e.target.result);
+          };
+          img.src = e.target.result;
+        };
+        reader.onerror = function () {
+          callback(null);
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function setLoadingState(isLoading) {
+        const btn = document.getElementById('checkinButton');
+        if (isLoading) {
+          btn.disabled = true;
+          btn.textContent = '處理中...';
+        } else {
+          btn.textContent = '確認上傳並集點';
+          btn.disabled = todayRemaining === 0;
+        }
+      }
+
+      // LIFF 初始化超時秒數（手機網路較慢時可拉長）
+      const LIFF_INIT_TIMEOUT_MS = 15000;
+
+      function initLiff() {
+        // 瀏覽器 mock 模式：跳過 LIFF，直接用假帳號測試
+        if (IS_BROWSER_MOCK) {
+          currentProfile = { userId: 'mock-user-browser', displayName: '測試帳號（瀏覽器）' };
+          document.getElementById('displayName').textContent = currentProfile.displayName;
+          document.getElementById('error').textContent = '[Mock 模式] 非 LINE App 環境，使用測試帳號。';
+          loadStatus();
+          return;
+        }
+
+        // LIFF init 超時保護；超時時顯示目前頁面網址與「重新開啟」按鈕
+        const liffInitTimeout = setTimeout(function () {
+          if (!currentProfile) {
+            const currentUrl = location.href;
+            const liffUrl = 'https://liff.line.me/' + LIFF_ID;
+            document.getElementById('error').innerHTML =
+              '❌ LIFF 初始化超時（15s）。請確認 LINE 後台的 Endpoint URL 與下方網址完全相同、LIFF ID 正確。<br><br>目前頁面網址：<br>' +
+              currentUrl +
+              '<br><br><button type="button" class="button" onclick="location.href=\'' + liffUrl + '\'">點此重新從 LINE 開啟</button>';
+            document.getElementById('todayStatus').innerHTML =
+              '<span class="pill pill-info">初始化超時</span>';
+          }
+        }, LIFF_INIT_TIMEOUT_MS);
+
+        liff
+          .init({ liffId: LIFF_ID })
+          .then(() => {
+            clearTimeout(liffInitTimeout);
+            if (!liff.isInClient()) {
+              document.getElementById('error').textContent = '請使用 LINE App 開啟此頁面。';
+              return;
+            }
+            if (!liff.isLoggedIn()) {
+              liff.login({ redirectUri: location.href });
+              return;
+            }
+            const idToken = liff.getDecodedIDToken();
+            if (idToken && idToken.sub) {
+              clearTimeout(liffInitTimeout);
+              currentProfile = { userId: idToken.sub, displayName: idToken.name || '朋友' };
+              document.getElementById('displayName').textContent = currentProfile.displayName;
+              document.getElementById('error').textContent = '';
+              loadStatus();
+              return;
+            }
+            const ctx = liff.getContext();
+            if (ctx && ctx.userId) {
+              clearTimeout(liffInitTimeout);
+              currentProfile = { userId: ctx.userId, displayName: '朋友' };
+              document.getElementById('displayName').textContent = currentProfile.displayName;
+              document.getElementById('error').textContent = '';
+              loadStatus();
+              return;
+            }
+            return liff.getProfile();
+          })
+          .then((profile) => {
+            if (!profile) return;
+            clearTimeout(liffInitTimeout);
+            currentProfile = profile;
+            document.getElementById('displayName').textContent = profile.displayName || '朋友';
+            document.getElementById('error').textContent = '';
+            loadStatus();
+          })
+          .catch((err) => {
+            clearTimeout(liffInitTimeout);
+            const code = err && (err.code || err.errorCode || '');
+            const msg = err && (err.message || String(err));
+            let hint = '';
+            if (code === 'INVALID_ARGUMENT' || String(msg).includes('LIFF_STORE')) {
+              hint = '請確認 LIFF ID 是否正確，並在 LINE Developers 後台確認 Endpoint URL。';
+            } else if (String(msg).includes('network') || String(msg).includes('fetch')) {
+              hint = '網路連線問題，請重新開啟頁面。';
+            }
+            const liffUrl = 'https://liff.line.me/' + LIFF_ID;
+            document.getElementById('error').innerHTML =
+              'LIFF 初始化失敗' +
+              (code ? '（' + code + '）' : '') +
+              '：' + msg +
+              (hint ? '<br>💡 ' + hint : '') +
+              '<br><br><button type="button" class="button" onclick="location.href=\'' + liffUrl + '\'">點此重新從 LINE 開啟</button>';
+            document.getElementById('todayStatus').innerHTML =
+              '<span class="pill pill-info">初始化失敗</span>';
+            console.error('[LIFF Error]', err);
+          });
+      }
+
+      function loadStatus() {
+        if (!currentProfile) return;
+
+        const statusEl = document.getElementById('todayStatus');
+        statusEl.innerHTML = '<span class="pill pill-info">更新中…</span>';
+        document.getElementById('message').textContent = '';
+        document.getElementById('error').textContent = '';
+
+        apiGetStatus(currentProfile.userId)
+          .then(function (res) {
+            const count = res.todayCheckinCount != null ? res.todayCheckinCount : (res.hasToday ? 1 : 0);
+            const remaining = res.todayRemaining != null ? res.todayRemaining : (res.hasToday ? 0 : 1);
+            todayRemaining = remaining;
+
+            const pointInfo = document.getElementById('pointInfo');
+            pointInfo.style.display = 'block';
+            document.getElementById('totalPoints').textContent = res.totalPoints;
+            document.getElementById('todayDate').textContent = res.today;
+
+            const btn = document.getElementById('checkinButton');
+            if (remaining === 0) {
+              statusEl.innerHTML = '<span class="pill pill-success">今日已達 3 次</span>';
+              btn.disabled = true;
+              document.getElementById('message').textContent = '今日已達 3 次上限，明天再來吧！';
+            } else {
+              statusEl.innerHTML =
+                '<span class="pill pill-info">今日已打卡 ' + count + '/3 次，還可打卡 ' + remaining + ' 次</span>';
+              btn.disabled = false;
+              document.getElementById('message').textContent =
+                count === 0 ? '按下下面的按鈕，為今天累積 1 點。' : '還可再打卡 ' + remaining + ' 次。';
+            }
+          })
+          .catch(function (err) {
+            document.getElementById('error').textContent =
+              '讀取狀態失敗：' + err.message +
+              ' 請確認使用 /exec 網址開啟，或在 LINE 內開啟 LIFF。';
+            document.getElementById('todayStatus').innerHTML =
+              '<span class="pill pill-info">讀取失敗</span>';
+          });
+      }
+
+      function onCheckInWithImageClick() {
+        if (!currentProfile || isCheckingIn) {
+          return;
+        }
+        if (!currentImageBase64) {
+          document.getElementById('error').textContent = '請先選擇一張打卡圖片。';
+          return;
+        }
+        isCheckingIn = true;
+        setLoadingState(true);
+        document.getElementById('message').textContent = '';
+        document.getElementById('error').textContent = '';
+
+        const productName = document.getElementById('productNameInput').value || '';
+        const quantity = document.getElementById('quantityInput').value || '';
+
+        apiCheckInWithImage(
+          currentProfile.userId,
+          currentProfile.displayName,
+          currentImageBase64,
+          productName,
+          quantity,
+          ''
+        )
+          .then(function (res) {
+            isCheckingIn = false;
+            if (res && res.status) {
+              const s = res.status;
+              const count = s.todayCheckinCount != null ? s.todayCheckinCount : (s.hasToday ? 1 : 0);
+              const remaining = s.todayRemaining != null ? s.todayRemaining : (s.hasToday ? 0 : 1);
+              todayRemaining = remaining;
+
+              const pointInfo = document.getElementById('pointInfo');
+              pointInfo.style.display = 'block';
+              document.getElementById('totalPoints').textContent = s.totalPoints;
+              document.getElementById('todayDate').textContent = s.today;
+
+              const statusEl = document.getElementById('todayStatus');
+              const btn = document.getElementById('checkinButton');
+              if (remaining === 0) {
+                statusEl.innerHTML = '<span class="pill pill-success">今日已達 3 次</span>';
+                btn.disabled = true;
+                document.getElementById('message').textContent = res.message || '今日已達 3 次上限，明天再來吧！';
+              } else {
+                statusEl.innerHTML =
+                  '<span class="pill pill-info">今日已打卡 ' + count + '/3 次，還可打卡 ' + remaining + ' 次</span>';
+                btn.disabled = false;
+                document.getElementById('message').textContent = res.message || '打卡成功！';
+              }
+            }
+            setLoadingState(false);
+            if (res && res.message && !res.status) {
+              document.getElementById('message').textContent = res.message;
+            }
+            if (res && res.status && (res.productName || res.quantity)) {
+                const parts = [];
+                if (res.productName) parts.push('商品：' + res.productName);
+                if (res.quantity) parts.push('數量：' + res.quantity);
+                document.getElementById('message').textContent =
+                  (res.message || '打卡成功！') + '（' + parts.join('，') + '）';
+              }
+            if (res.hint) {
+              const msgEl = document.getElementById('message');
+              msgEl.textContent = (msgEl.textContent || '') + (msgEl.textContent ? '\n' : '') + res.hint;
+            }
+          })
+          .catch(function (err) {
+            isCheckingIn = false;
+            setLoadingState(false);
+            document.getElementById('error').textContent = '打卡時發生錯誤：' + err.message;
+          });
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        const btn = document.getElementById('checkinButton');
+        btn.disabled = true;
+        const imageInput = document.getElementById('imageInput');
+        imageInput.addEventListener('change', function (e) {
+          const file = e.target.files && e.target.files[0];
+          if (!file) {
+            currentImageBase64 = null;
+            return;
+          }
+          document.getElementById('error').textContent = '';
+          compressImageToBase64(file, function (base64) {
+            if (!base64) {
+              currentImageBase64 = null;
+              document.getElementById('error').textContent = '讀取圖片失敗，請重試或換一張圖。';
+              return;
+            }
+            currentImageBase64 = base64;
+          });
+        });
+
+        window._liffTimeout = setTimeout(function () {}, 6000);
+        initLiff();
+      });
+    </script>
+  </body>
+</html>
+
