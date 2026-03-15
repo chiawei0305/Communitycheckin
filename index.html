@@ -535,6 +535,13 @@
         )
           .then(function (res) {
             isCheckingIn = false;
+            if (res && res.success === false) {
+              document.getElementById('error').textContent =
+                res.message + (res.hint ? '\n' + res.hint : '');
+              document.getElementById('message').textContent = '';
+            } else {
+              document.getElementById('error').textContent = '';
+            }
             if (res && res.status) {
               const s = res.status;
               const count = s.todayCheckinCount != null ? s.todayCheckinCount : (s.hasToday ? 1 : 0);
@@ -551,28 +558,30 @@
               if (remaining === 0) {
                 statusEl.innerHTML = '<span class="pill pill-success">今日已達 3 次</span>';
                 btn.disabled = true;
-                document.getElementById('message').textContent = res.message || '今日已達 3 次上限，明天再來吧！';
+                document.getElementById('message').textContent =
+                  res.success !== false ? (res.message || '今日已達 3 次上限，明天再來吧！') : '';
               } else {
                 statusEl.innerHTML =
                   '<span class="pill pill-info">今日已打卡 ' + count + '/3 次，還可打卡 ' + remaining + ' 次</span>';
                 btn.disabled = false;
-                document.getElementById('message').textContent = res.message || '打卡成功！';
+                document.getElementById('message').textContent =
+                  res.success !== false ? (res.message || '打卡成功！') : '';
+              }
+              if (res.success !== false && (res.productName || res.quantity)) {
+                const parts = [];
+                if (res.productName) parts.push('商品：' + res.productName);
+                if (res.quantity) parts.push('數量：' + res.quantity);
+                document.getElementById('message').textContent =
+                  (res.message || '打卡成功！') + '（' + parts.join('，') + '）';
+              }
+              if (res.success !== false && res.hint) {
+                const msgEl = document.getElementById('message');
+                msgEl.textContent = (msgEl.textContent || '') + (msgEl.textContent ? '\n' : '') + res.hint;
               }
             }
             setLoadingState(false);
             if (res && res.message && !res.status) {
               document.getElementById('message').textContent = res.message;
-            }
-            if (res && res.status && (res.productName || res.quantity)) {
-              const parts = [];
-              if (res.productName) parts.push('商品：' + res.productName);
-              if (res.quantity) parts.push('數量：' + res.quantity);
-              document.getElementById('message').textContent =
-                (res.message || '打卡成功！') + '（' + parts.join('，') + '）';
-            }
-            if (res.hint) {
-              const msgEl = document.getElementById('message');
-              msgEl.textContent = (msgEl.textContent || '') + (msgEl.textContent ? '\n' : '') + res.hint;
             }
           })
           .catch(function (err) {
