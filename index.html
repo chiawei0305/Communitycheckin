@@ -207,17 +207,32 @@
         margin-bottom: 4px;
       }
 
+      .status-banner {
+        margin-top: 8px;
+        text-align: center;
+      }
+
+      .status-banner img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+      }
+
     </style>
   </head>
   <body>
     <div class="card">
       <div class="title">YUI集點送購物金！</div>
       <div class="subtitle">天天打卡賺 7-11 購物金！</div>
-      <div class="subtitle greeting">嗨，<span id="displayName">載入中...</span> <br>👋 今天用了哪些 YUI 好物？拍照上傳拿點數吧！</div>
+      <div class="subtitle greeting">嗨，<span id="displayName">載入中...</span> 👋 <br>今天用了哪些 YUI 好物？拍照上傳拿點數吧！</div>
 
       <div class="status">
         <div id="todayStatus">
           <span class="pill pill-info">狀態載入中…</span>
+        </div>
+        <div class="status-banner">
+          <img src="./yui-points-banner.png" alt="YUI 集點送購物金活動" />
         </div>
         <div id="pointInfo" style="margin-top: 8px; display: none;">
           <div class="stat-row">
