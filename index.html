@@ -225,7 +225,7 @@
     <div class="card">
       <div class="title">YUI集點送購物金！</div>
       <div class="subtitle">天天打卡賺 7-11 購物金！</div>
-      <div class="subtitle greeting">嗨，<span id="displayName">載入中...</span> 👋 <br>今天用了哪些 YUI 好物？拍照上傳拿點數吧！</div>
+      <div class="subtitle greeting">嗨，<span id="displayName">載入中...</span> 👋 今天用了哪些 YUI 好物？拍照上傳拿點數吧！</div>
 
       <div class="status">
         <div id="todayStatus">
@@ -256,7 +256,7 @@
             <ul>
               <li><strong>適用商品：</strong>纖歲茶、百卡餐、極視能、速疾通、益生菌、夜酵素... 等</li>
               <li><strong>給點機制：</strong>上傳 1 張自用商品照片 = 累積 1 點</li>
-              <li><strong>次數限制：</strong>每天最多只能打卡 3 次（即一天最多累積 3 點）</li>
+              <li><strong>次數限制：</strong>每天最多只能打卡 2 次（即一天最多累積 2 點）</li>
               <li><strong>活動期間：</strong>從「開卡」當日開始計算</li>
             </ul>
           </div>
@@ -291,7 +291,7 @@
       <div id="message" class="message"></div>
       <div id="error" class="message error"></div>
 
-      <div class="footer">💡 每日最多打卡 3 次。系統 AI 嚴格審核，非 YUI 團購商品不計點喔！</div>
+      <div class="footer">💡 每日最多打卡 2 次。系統 AI 嚴格審核，非 YUI 團購商品不計點喔！</div>
     </div>
 
     <script>
@@ -504,11 +504,11 @@
 
             const btn = document.getElementById('checkinButton');
             if (remaining === 0) {
-              statusEl.innerHTML = '<span class="pill pill-success">今日已達 3 次</span>';
+              statusEl.innerHTML = '<span class="pill pill-success">今日已達 2 次</span>';
               btn.disabled = true;
             } else {
               statusEl.innerHTML =
-                '<span class="pill pill-info">今日已打卡 ' + count + '/3 次，還可打卡 ' + remaining + ' 次</span>';
+                '<span class="pill pill-info">今日已打卡 ' + count + '/2 次，還可打卡 ' + remaining + ' 次</span>';
               btn.disabled = false;
             }
           })
@@ -567,13 +567,13 @@
               const statusEl = document.getElementById('todayStatus');
               const btn = document.getElementById('checkinButton');
               if (remaining === 0) {
-                statusEl.innerHTML = '<span class="pill pill-success">今日已達 3 次</span>';
+                statusEl.innerHTML = '<span class="pill pill-success">今日已達 2 次</span>';
                 btn.disabled = true;
                 document.getElementById('message').textContent =
-                  res.success !== false ? (res.message || '今日已達 3 次上限，明天再來吧！') : '';
+                  res.success !== false ? (res.message || '今日已達 2 次上限，明天再來吧！') : '';
               } else {
                 statusEl.innerHTML =
-                  '<span class="pill pill-info">今日已打卡 ' + count + '/3 次，還可打卡 ' + remaining + ' 次</span>';
+                  '<span class="pill pill-info">今日已打卡 ' + count + '/2 次，還可打卡 ' + remaining + ' 次</span>';
                 btn.disabled = false;
                 document.getElementById('message').textContent =
                   res.success !== false ? (res.message || '打卡成功！') : '';
