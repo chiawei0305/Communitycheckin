@@ -316,7 +316,7 @@
           });
       }
 
-      function apiCheckInWithImage(userId, displayName, imageBase64, productName, quantity, groupId) {
+      function apiCheckInWithImage(userId, displayName, imageBase64, productName, quantity, groupId, imageName, imageSize) {
         return fetch(GAS_API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain' },
@@ -327,7 +327,9 @@
             imageBase64: imageBase64 || '',
             productName: productName || '',
             quantity: quantity || '',
-            groupId: groupId || ''
+            groupId: groupId || '',
+            imageName: imageName || '',
+            imageSize: imageSize || 0
           })
         })
           .then(function (r) { return r.json(); })
@@ -340,6 +342,8 @@
       let currentProfile = null;
       let isCheckingIn = false;
       let currentImageBase64 = null;
+      let currentImageName = '';
+      let currentImageSize = 0;
       let todayRemaining = 0;
 
       function toggleRules() {
@@ -542,7 +546,9 @@
           currentImageBase64,
           productName,
           quantity,
-          ''
+          '',
+          currentImageName,
+          currentImageSize
         )
           .then(function (res) {
             isCheckingIn = false;
@@ -614,12 +620,18 @@
           const file = e.target.files && e.target.files[0];
           if (!file) {
             currentImageBase64 = null;
+            currentImageName = '';
+            currentImageSize = 0;
             return;
           }
+          currentImageName = file.name || '';
+          currentImageSize = Number(file.size || 0);
           document.getElementById('error').textContent = '';
           compressImageToBase64(file, function (base64) {
             if (!base64) {
               currentImageBase64 = null;
+              currentImageName = '';
+              currentImageSize = 0;
               document.getElementById('error').textContent = '讀取圖片失敗，請重試或換一張圖。';
               return;
             }
